@@ -5,8 +5,36 @@ const cors = require("cors");
 const port = process.env.PORT || 4000;
 require("dotenv").config();
 
+// firebase configs
+const admin = require("firebase-admin");
+const serviceAccount = require("./adminne_Sdk_Darta.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+// MidelWier
 app.use(cors());
 app.use(express.json());
+
+const firebaseVerifyMidel = async (req, res, next) => {
+  const hade = req.headers.authorization;
+  if (!hade) {
+    return res.status(401).send({ message: "Unother Access" });
+  }
+  const token = hade.split(" ")[1];
+  if (!token) {
+    return res.status(401).send({ message: "Unother Access" });
+  }
+
+  try {
+    const verify = await admin.auth().verifyIdToken(token);
+    req.test_email = verify.email;
+    console.log(verify);
+    next();
+  } catch {
+    return res.status(401).send({ message: "Unother Access" });
+  }
+};
 
 // Server Test
 app.get("/", (req, res) => {
@@ -14,9 +42,7 @@ app.get("/", (req, res) => {
 });
 
 // MongoDB Connect
-const uri = `mongodb+srv://${process.env.VIT_DATABASE_USER}:${
-  process.env.VIT_DATABASE_PASSWOOORD
-}@clustermyfirstmongodbpr.2cecfoe.mongodb.net/?appName=ClusterMyFirstMongoDbProject`;
+const uri = `mongodb+srv://${process.env.VIT_DATABASE_USER}:${process.env.VIT_DATABASE_PASSWOOORD}@clustermyfirstmongodbpr.2cecfoe.mongodb.net/?appName=ClusterMyFirstMongoDbProject`;
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -25,22 +51,36 @@ const client = new MongoClient(uri, {
   },
 });
 
-
-
-
-
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    const allDataDB = client.db("freelancing");
+    const jobCollection = allDataDB.collection("allJobs");
+
+    // all Jobs Apis
+    app.post("/jobs", firebaseVerifyMidel, async (req, res) => {
+
+      if (!req.test_email) {
+        return res.status(401).send({ message: "Unother Access" });
+      }
+
+      const data = req.body;
+      const result = await jobCollection.insertOne(data);
+      res.send(result);
+    });
+
+    app.get("/jobs", firebaseVerifyMidel, async (req, res) => {
+      const result = await jobCollection.find().toArray();
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
   } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
   }
 }
 run().catch(console.dir);
