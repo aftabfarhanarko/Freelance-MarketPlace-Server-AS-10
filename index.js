@@ -3,12 +3,13 @@ const { MongoClient, ServerApiVersion } = require("mongodb");
 const app = express();
 const cors = require("cors");
 const port = process.env.PORT || 4000;
+const admin = require("firebase-admin");
 require("dotenv").config();
 
 // firebase configs
-const admin = require("firebase-admin");
-const serviceAccount = require("./adminne_Sdk_Darta.json");
-admin.initializeApp({
+// index.js
+const decoded = Buffer.from(process.env.VIT_FIREBASE_ADMIN, "base64").toString("utf8");
+const serviceAccount = JSON.parse(decoded);admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
@@ -60,17 +61,15 @@ async function run() {
 
     // all Jobs Apis
     app.post("/jobs", firebaseVerifyMidel, async (req, res) => {
-
       if (!req.test_email) {
         return res.status(401).send({ message: "Unother Access" });
       }
-
       const data = req.body;
       const result = await jobCollection.insertOne(data);
       res.send(result);
     });
 
-    app.get("/jobs", firebaseVerifyMidel, async (req, res) => {
+    app.get("/jobs", async (req, res) => {
       const result = await jobCollection.find().toArray();
       res.send(result);
     });
