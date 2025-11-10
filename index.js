@@ -61,6 +61,7 @@ async function run() {
     await client.connect();
     const allDataDB = client.db("freelancing");
     const jobCollection = allDataDB.collection("allJobs");
+    const accespetJob = allDataDB.collection("jobaccespet")
 
     // all Jobs Apis
     app.post("/jobs", firebaseVerifyMidel, async (req, res) => {
@@ -105,6 +106,14 @@ async function run() {
       const result = await data.toArray();
       res.send(result);
     });
+
+
+    // Accespet Post
+    app.post("/task", async (req, res) => {
+      const data = req.body;
+      const result = await accespetJob.insertOne(data);
+      res.send(result)
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
