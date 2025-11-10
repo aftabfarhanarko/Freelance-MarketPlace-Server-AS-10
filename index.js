@@ -1,5 +1,5 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const cors = require("cors");
 const port = process.env.PORT || 4000;
@@ -8,8 +8,11 @@ require("dotenv").config();
 
 // firebase configs
 // index.js
-const decoded = Buffer.from(process.env.VIT_FIREBASE_ADMIN, "base64").toString("utf8");
-const serviceAccount = JSON.parse(decoded);admin.initializeApp({
+const decoded = Buffer.from(process.env.VIT_FIREBASE_ADMIN, "base64").toString(
+  "utf8"
+);
+const serviceAccount = JSON.parse(decoded);
+admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
@@ -73,6 +76,20 @@ async function run() {
       const result = await jobCollection.find().toArray();
       res.send(result);
     });
+
+    app.get("/jobs/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await jobCollection.findOne(query);
+      res.send(result);
+    });
+
+    // letes 6 job now
+    app.get("/letes", async (req,res) => {
+        const data = jobCollection.find().sort({create_at: -1}).limit(6)
+        const result = await data.toArray();
+        res.send(result);
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
