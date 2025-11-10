@@ -100,6 +100,17 @@ async function run() {
       res.send(result);
     });
 
+    app.delete("/jobs/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await jobCollection.deleteOne(query);
+      res.send(result)
+      console.log(result);
+      
+    })
+
+
+
     // letes 6 job now
     app.get("/letes", async (req, res) => {
       const data = jobCollection.find().sort({ create_at: -1 }).limit(6);
@@ -141,8 +152,10 @@ async function run() {
     });
 
     // myadds Jobs Api
-    app.get("/myadd", async (req, res) => {
-      
+    app.get("/myadd", firebaseVerifyMidel, async (req, res) => {
+      if (req.query.email !== req.test_email) {
+        return res.status(403).send({ message: "Not  access real user" });
+      }
       const query = {};
       if (req.query.email) {
         query.email = req.query.email;
