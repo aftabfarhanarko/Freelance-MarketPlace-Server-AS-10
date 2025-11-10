@@ -114,6 +114,22 @@ async function run() {
       const result = await accespetJob.insertOne(data);
       res.send(result)
     })
+    
+    app.get("/task", firebaseVerifyMidel, async (req, res) => {
+       const query = {};
+      if (req.query.email) {
+        query.oner_email = req.query.email;
+      }
+      // if (req.query.email !== req.test_email) {
+      //   return res.status(403).send({ message: "Not  access real user" });
+      // }
+      
+      const result = await accespetJob.find({acceptsUserEmail: query}).toArray();
+      res.send(result);
+
+      console.log(query);
+      
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
