@@ -61,7 +61,7 @@ async function run() {
     await client.connect();
     const allDataDB = client.db("freelancing");
     const jobCollection = allDataDB.collection("allJobs");
-    const accespetJob = allDataDB.collection("jobaccespet")
+    const accespetJob = allDataDB.collection("jobaccespet");
 
     // all Jobs Apis
     app.post("/jobs", firebaseVerifyMidel, async (req, res) => {
@@ -85,16 +85,16 @@ async function run() {
       res.send(result);
     });
 
-    app.patch("/jobs/:id",async (req, res) => {
+    app.patch("/jobs/:id", async (req, res) => {
       // if (!req.test_email) {
       //   return res.status(401).send({ message: "Unother Access" });
       // }
       const id = req.params.id;
       const data = req.body;
-      console.log({id,data});
-      const query = {_id: new ObjectId(id)};
+      console.log({ id, data });
+      const query = { _id: new ObjectId(id) };
       const seter = {
-        $set: data
+        $set: data,
       };
       const result = await jobCollection.updateOne(query, seter);
       res.send(result);
@@ -107,27 +107,34 @@ async function run() {
       res.send(result);
     });
 
-
     // Accespet Post
     app.post("/task", async (req, res) => {
       const data = req.body;
       const result = await accespetJob.insertOne(data);
-      res.send(result)
-    })
-    
+      res.send(result);
+    });
     app.get("/task", firebaseVerifyMidel, async (req, res) => {
-       const query = {};
+      const query = {};
       if (req.query.email) {
-        query.oner_email = req.query.email;
+        query.email = req.query.email;
       }
-      // if (req.query.email !== req.test_email) {
-      //   return res.status(403).send({ message: "Not  access real user" });
-      // }
-      
-      const result = await accespetJob.find({acceptsUserEmail: query}).toArray();
+      if (req.query.email !== req.test_email) {
+        return res.status(403).send({ message: "Not  access real user" });
+      }
+      const result = await accespetJob
+        .find({ acceptsUserEmail: query.email })
+        .toArray();
       res.send(result);
 
       console.log(query);
+    });
+
+    app.delete("/task/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await accespetJob.deleteOne(query);
+      res.send(result);
+      console.log(result);
       
     })
 
