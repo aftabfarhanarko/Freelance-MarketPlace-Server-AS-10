@@ -84,12 +84,27 @@ async function run() {
       res.send(result);
     });
 
+    app.patch("/jobs/:id",async (req, res) => {
+      // if (!req.test_email) {
+      //   return res.status(401).send({ message: "Unother Access" });
+      // }
+      const id = req.params.id;
+      const data = req.body;
+      console.log({id,data});
+      const query = {_id: new ObjectId(id)};
+      const seter = {
+        $set: data
+      };
+      const result = await jobCollection.updateOne(query, seter);
+      res.send(result);
+    });
+
     // letes 6 job now
-    app.get("/letes", async (req,res) => {
-        const data = jobCollection.find().sort({create_at: -1}).limit(6)
-        const result = await data.toArray();
-        res.send(result);
-    })
+    app.get("/letes", async (req, res) => {
+      const data = jobCollection.find().sort({ create_at: -1 }).limit(6);
+      const result = await data.toArray();
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
