@@ -126,17 +126,33 @@ async function run() {
         .toArray();
       res.send(result);
 
-      console.log(query);
+      console.log(result);
     });
 
-    app.delete("/task/:id", async (req, res) => {
+    app.delete("/task/:id", firebaseVerifyMidel, async (req, res) => {
+      if (req.query.email !== req.test_email) {
+        return res.status(403).send({ message: "Not  access real user" });
+      }
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await accespetJob.deleteOne(query);
       res.send(result);
       console.log(result);
+    });
+
+    // myadds Jobs Api
+    app.get("/myadd", async (req, res) => {
       
-    })
+      const query = {};
+      if (req.query.email) {
+        query.email = req.query.email;
+      }
+      const result = await jobCollection
+        .find({ userEmail: query.email })
+        .toArray();
+      res.send(result);
+      console.log("This is myadd api", result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
