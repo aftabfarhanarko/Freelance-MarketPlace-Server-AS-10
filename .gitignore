@@ -1,3 +1,4 @@
 node_modules
 .env
 adminne_Sdk_Darta.json
+.vercel
