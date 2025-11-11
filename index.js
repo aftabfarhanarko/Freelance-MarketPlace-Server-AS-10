@@ -105,7 +105,7 @@ async function run() {
       const query = {_id: new ObjectId(id)};
       const result = await jobCollection.deleteOne(query);
       res.send(result)
-      console.log(result);
+      // console.log(result);
       
     })
 
@@ -137,7 +137,7 @@ async function run() {
         .toArray();
       res.send(result);
 
-      console.log(result);
+      // console.log(result);
     });
 
     app.delete("/task/:id", firebaseVerifyMidel, async (req, res) => {
@@ -148,7 +148,8 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await accespetJob.deleteOne(query);
       res.send(result);
-      console.log(result);
+      console.log(   'this is delet data now',{id} , {result});
+      console.log(   'this is delet data now',{id} , {result});
     });
 
     // myadds Jobs Api
@@ -164,7 +165,7 @@ async function run() {
         .find({ userEmail: query.email })
         .toArray();
       res.send(result);
-      console.log("This is myadd api", result);
+      // console.log("This is myadd api", result);
     });
 
     // Send a ping to confirm a successful connection
