@@ -74,7 +74,10 @@ async function run() {
     });
 
     app.get("/jobs", async (req, res) => {
-      const result = await jobCollection.find().toArray();
+      const result = await jobCollection
+        .find()
+        .sort({ create_at: -1 })
+        .toArray();
       res.send(result);
     });
 
@@ -85,31 +88,38 @@ async function run() {
       res.send(result);
     });
 
-    app.patch("/jobs/:id", async (req, res) => {
-      // if (!req.test_email) {
-      //   return res.status(401).send({ message: "Unother Access" });
-      // }
+    // updeat
+    app.patch("/updeat/:id", firebaseVerifyMidel, async (req, res) => {
       const id = req.params.id;
+      const midelWearEmail = req.test_email;
+      // console.log(midelWearEmail);
+      
+      const dataFetch = await jobCollection.findOne({_id : new ObjectId(id)});
+
+      if(!dataFetch){
+        return res.status(401).send({message : " Job Not Found"});
+      }
+
+      if(dataFetch.userEmail !== midelWearEmail){
+        return res.send(401).send({message: "Unauthorized  Access"})
+      }
+
       const data = req.body;
-      console.log({ id, data });
-      const query = { _id: new ObjectId(id) };
+      const edit = { _id: new ObjectId(id) };
       const seter = {
         $set: data,
       };
-      const result = await jobCollection.updateOne(query, seter);
+      const result = await jobCollection.updateOne(edit, seter);
       res.send(result);
     });
 
     app.delete("/jobs/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await jobCollection.deleteOne(query);
-      res.send(result)
+      res.send(result);
       // console.log(result);
-      
-    })
-
-
+    });
 
     // letes 6 job now
     app.get("/letes", async (req, res) => {
@@ -148,8 +158,8 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await accespetJob.deleteOne(query);
       res.send(result);
-      console.log(   'this is delet data now',{id} , {result});
-      console.log(   'this is delet data now',{id} , {result});
+      // console.log("this is delet data now", { id }, { result });
+      // console.log("this is delet data now", { id }, { result });
     });
 
     // myadds Jobs Api
@@ -167,6 +177,18 @@ async function run() {
       res.send(result);
       // console.log("This is myadd api", result);
     });
+
+
+    // Search Catagory 
+    app.get("/filtersOn", async (req, res) => {
+      const data = req.query.filter;
+      const result = await jobCollection.find({category: data}).toArray();
+      res.send(result);
+      console.log("Reques Fontend ",data);
+      
+    })
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
