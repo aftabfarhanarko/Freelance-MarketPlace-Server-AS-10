@@ -57,8 +57,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
     const allDataDB = client.db("freelancing");
     const jobCollection = allDataDB.collection("allJobs");
     const accespetJob = allDataDB.collection("jobaccespet");
@@ -177,7 +175,22 @@ async function run() {
       res.send(result);
       // console.log("This is myadd api", result);
     });
-
+      
+    // sorting
+    app.get("/sorting",  async (req,res) => {
+      const data = jobCollection.find().sort({create_at: 1});
+      const result = await data.toArray();
+      res.send(result);
+      console.log(result);
+      
+    })
+    app.get("/sorting2",  async (req,res) => {
+      const data = jobCollection.find().sort({create_at: -1});
+      const result = await data.toArray();
+      res.send(result);
+      console.log(result);
+      
+    })
 
     // Search Catagory 
     app.get("/filtersOn", async (req, res) => {
@@ -188,13 +201,6 @@ async function run() {
       
     })
 
-
-
-    // Send a ping to confirm a successful connection
-    // await client.db("admin").command({ ping: 1 });
-    // console.log(
-    //   "Pinged your deployment. You successfully connected to MongoDB!"
-    // );
   } finally {
   }
 }
