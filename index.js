@@ -91,15 +91,15 @@ async function run() {
       const id = req.params.id;
       const midelWearEmail = req.test_email;
       // console.log(midelWearEmail);
-      
-      const dataFetch = await jobCollection.findOne({_id : new ObjectId(id)});
 
-      if(!dataFetch){
-        return res.status(401).send({message : " Job Not Found"});
+      const dataFetch = await jobCollection.findOne({ _id: new ObjectId(id) });
+
+      if (!dataFetch) {
+        return res.status(401).send({ message: " Job Not Found" });
       }
 
-      if(dataFetch.userEmail !== midelWearEmail){
-        return res.send(401).send({message: "Unauthorized  Access"})
+      if (dataFetch.userEmail !== midelWearEmail) {
+        return res.send(401).send({ message: "Unauthorized  Access" });
       }
 
       const data = req.body;
@@ -175,32 +175,28 @@ async function run() {
       res.send(result);
       // console.log("This is myadd api", result);
     });
-      
-    // sorting
-    app.get("/sorting",  async (req,res) => {
-      const data = jobCollection.find().sort({create_at: 1});
-      const result = await data.toArray();
-      res.send(result);
-      console.log(result);
-      
-    })
-    app.get("/sorting2",  async (req,res) => {
-      const data = jobCollection.find().sort({create_at: -1});
-      const result = await data.toArray();
-      res.send(result);
-      console.log(result);
-      
-    })
 
-    // Search Catagory 
+    // sorting
+    app.get("/sorting", async (req, res) => {
+      const data = jobCollection.find().sort({ create_at: 1 });
+      const result = await data.toArray();
+      res.send(result);
+      console.log(result);
+    });
+    app.get("/sorting2", async (req, res) => {
+      const data = jobCollection.find().sort({ create_at: -1 });
+      const result = await data.toArray();
+      res.send(result);
+      console.log(result);
+    });
+
+    // Search Catagory
     app.get("/filtersOn", async (req, res) => {
       const data = req.query.filter;
-      const result = await jobCollection.find({category: data}).toArray();
+      const result = await jobCollection.find({ category: data }).toArray();
       res.send(result);
-      console.log("Reques Fontend ",data);
-      
-    })
-
+      console.log("Reques Fontend ", data);
+    });
   } finally {
   }
 }
