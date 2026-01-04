@@ -725,6 +725,34 @@ async function run() {
       // console.log(result);
     });
 
+    // Modifey jobs
+    app.patch("/modifeyjobes/:id", async (req, res) => {
+      try {
+        const id = req.params.id;
+        const updatedData = req.body;
+        // console.log("Updeat Now", id,updatedData);
+        
+
+        const filter = { _id: new ObjectId(id) };
+
+        const updateDoc = {
+          $set: {
+            ...updatedData,
+            updatedAt: new Date().toISOString(),
+          },
+        };
+
+        const result = await jobCollection.updateOne(filter, updateDoc);
+
+        res.json(result);
+      } catch (error) {
+        res.status(500).json({
+          message: "Job update failed",
+          error,
+        });
+      }
+    });
+
     // Accespet Post
     app.post("/task", async (req, res) => {
       const data = req.body;
